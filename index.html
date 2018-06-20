@@ -1,0 +1,45 @@
+<!DOCTYPE>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title></title>
+<script type="text/javascript">
+var t1 = +new Date();
+function logit( str )
+{
+    window.console && console.log( str );
+}
+</script>
+<link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="css/submodal.css" />
+<script type="text/javascript" src="js/lib/submodal.js"></script>
+
+
+<script type="text/javascript" src="js/lang/en_wordlist.js"></script>
+<script type="text/javascript" src="js/lang/en_defs.js"></script>
+<script type="text/javascript" src="js/lang/en_letters.js"></script>
+<script type="text/javascript" src="js/lang/en_translate.js"></script>
+
+
+
+<script type="text/javascript" src="js/lib/sizzle.js"></script>
+<script type="text/javascript" src="js/lib/redipsdrag.js"></script>
+<script type="text/javascript" src="js/bonuses.js"></script>
+<script type="text/javascript" src="js/ui.js"></script>
+<script type="text/javascript" src="js/engine.js"></script>
+
+<script type="text/javascript">
+function _init()
+{
+    if ( ! document.querySelectorAll ) document.querySelectorAll = Sizzle;
+    init( "idBoard" );
+}
+</script>
+
+<title>JScrab</title>
+</head>
+<body style='-moz-user-select:none; -webkit-user-select:none;' onLoad="_init()" onselectstart='return false;'>
+<div id="uidiv"></div>
+<!-- <div id="uidiv"></div> -->
+</body>
+</html>
