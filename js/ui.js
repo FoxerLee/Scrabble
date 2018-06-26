@@ -22,11 +22,11 @@ function RedipsUI() {
     self.firstrack  = true;
     self.cellbg     = "#e0e0b0";
     self.rackbg     = "#e0f0d0";
-    self.level      = 1;         // Playing level
-    self.hlines     = "";        // play hisory lines
-    self.hcount     = 0;         // play history count
+    self.level      = 1;         // level
+    self.hlines     = "";
+    self.hcount     = 0;
     self.hcolors    = ["#f1fefe","#fefef1"];
-    self.showOpRack = 1;  // 0=not visible, 1=visible
+    self.showOpRack = 1;  //  控制 computer 的 letter 是否可见，0 = not visible，1 = visible
 
     self.wordInfo = function( word ) {
         if (!g_defs) {
@@ -45,7 +45,7 @@ function RedipsUI() {
         while ((mj = g_defs[lword].match(jump)) !== null) {
             lword = mj[1];
             if (!(lword in g_defs)) {
-                // shouldn't happen
+
                 alert( "dictionary inconsistency.");
                 return;
             }
@@ -167,8 +167,7 @@ function RedipsUI() {
         self.by = by;
 
         html = "<div id='drag'>"
-        //---------------------------
-        // Opponents rack
+
                 +  "<table><tr><td bgcolor='"+self.rackbg+"'>"
                 +  "<span id='togglebtn' class='obutton' "
                 +  "onClick='g_bui.toggleORV()'></span></td>";
@@ -180,8 +179,7 @@ function RedipsUI() {
         html += "</tr></table>";
         //html += "<br>";
 
-        //---------------------------
-        // Playing board
+
         var st = self.getStartXY();
         var mults = ["", "DL", "TL", "DW", "TW"];
         var mult;
@@ -210,16 +208,16 @@ function RedipsUI() {
         }
         html += "</table>";
 
-        //html += "<br>";
 
-        //---------------------------
-        // Players rack
-        html += "<br><center><table><tr>";
+
+
+        // player
+        html += "<br><div class='center'><table><tr>";
         for (i = 0; i < racksize; i++) {
             html += "<td id='" + self.plrRackId + i;
             html += "' bgcolor='" + self.rackbg + "' holds=''></td>";
         }
-        //---------------------------
+
 
         html += '<td class="marked" bgcolor="' + self.rackbg + '" >'
                 + '<span class="button" '
@@ -237,13 +235,13 @@ function RedipsUI() {
                 + '<span class="obutton" '
                 + 'onClick="onPlayerSwap()">' + t('Swap') + '</span></td>'
 
-                + '</tr></table></center>'
+                + '</tr></table></div>'
                 + "</div>";
 
         document.getElementById( iddiv ).innerHTML = html;
 
 
-        // initialize our custom DOM "holds" property
+
         for (i = 0; i < racksize; i++) {
             var idp = self.plrRackId + i;
             var ido = self.oppRackId + i;
@@ -256,15 +254,15 @@ function RedipsUI() {
                 document.getElementById(idc).holds = "";
             }
 
-        self.toggleORV(); // hide opponent rack
+        self.toggleORV(); // 隐藏 computer 的界面
 
-        // Initialize redips framework;
-        self.rd = REDIPS.drag;   // reference to the REDIPS.drag lib
+        // 这里初始化了 redips
+        self.rd = REDIPS.drag;
         self.initRedips();
     };
 
     self.toggleORV = function() {
-        // Toggle opponent rack visibility
+        // 控制 computer 的待填充 letter 池是否可见
         self.showOpRack = 1-self.showOpRack;
         var buttontxt = [];
 
@@ -283,8 +281,9 @@ function RedipsUI() {
         }
     };
 
+    // 控制起始点
     self.getStartXY = function() {
-        // starting position is center of board
+
         var fx = Math.round(self.bx/2) - 1;
         var fy = Math.round(self.by/2) - 1;
         return { x:fx, y:fy };
@@ -298,8 +297,8 @@ function RedipsUI() {
     };
 
     self.showBusy = function() {
-        html = "<center>"+t("Computer thinking, please wait...");
-        html += "</center>";
+        html = "<div class='center'>"+t("Computer thinking, please wait...");
+        html += "</div>";
         showPopWin( html, 250, 100 );
     };
 
@@ -330,14 +329,8 @@ function RedipsUI() {
                 swap += swp.firstChild.holds.letter;
         }
 
-        //alert( "keep:"+keep+" swap:"+swap );
-        // Either I'm not using redips correctly or having the two
-        // tile swapping tables somehow messes up its internal table
-        // monitoring mechanism. Without the two lines below, that
-        // tell redips to forget about the swap racks and reread
-        // the board and player/opponent rack tables, the move
-        // animation thinks the target table is the swap rack instead
-        // of the board table, causing havoc.
+        // alert( "keep:"+keep+" swap:"+swap );
+
         document.getElementById("swaptable").innerHTML = "";
         self.initRedips();
 
@@ -352,12 +345,8 @@ function RedipsUI() {
         var cell = document.getElementById( self.bdropCellId );
         cell.holds = self.hcopy(holds);
 
-        var html = "";
-        //html += "<div class='drag t1'>";
-        html += ltr.toUpperCase()+"<sup><font size='-3'>";
-        html += "&nbsp;</font></sup>";
-        //html += "</div>";
-        //cell.innerHTML = html;
+        var html = ltr.toUpperCase()+"<sup class='rusize'>" + "&nbsp;</sup>";
+
         var div = cell.firstChild;
         div.holds = self.hcopy(holds);
 
@@ -368,34 +357,37 @@ function RedipsUI() {
     self.showSwapModal = function( tilesLeft ) {
         var divs = [];
         var id;
-        var html = "<center><div id='drags'>"
+        var html = "<div class='center'><div id='drags'>"
                    + "<table id='swaptable'><tr bgcolor='#beffbe'>";
 
         for (var i = 0; i < self.racksize; i++) {
             id = self.plrRackId + i;
+
             var rcell = document.getElementById(id);
-            if (rcell.holds === "")
+            if (rcell.holds === "") {
                 continue;
+            }
+
             divs.push(rcell.firstChild);
+
             html += "<td class='swapc' id='swap_candidate" + i + "'></td>";
         }
         html += "</tr></table>";
 
         var rackplen = self.getPlayerRack().length;
         var maxswap = rackplen < tilesLeft ? rackplen : tilesLeft;
-        //alert( rackplen +" "+ tilesLeft + " " + maxswap)
+        // alert( rackplen +" "+ tilesLeft + " " + maxswap)
         html += "<table><tr bgcolor='#ffbebe'>";
         for (i=0; i<maxswap; i++) {
             html += "<td class='swapit' id='swap" + i + "'></td>";
         }
         html += "</tr></table>";
         html  += "</div><span class='button' onClick='g_bui.onSwap()''>";
-        html += t("OK")+"</span></center>";
-        // display the html in the modal window
+        html += t("OK")+"</span></div>";
+        // 显示界面位置
         showPopWin(html, 300, 160 );
-        // and then fill the DOM in the modal window with the
-        // existing letter divs from the players rack
 
+        // 填充 DOM
         for (i = 0; i < divs.length; i++) {
             id = "swap_candidate" + i;
             var swapc = document.getElementById(id);
@@ -412,17 +404,17 @@ function RedipsUI() {
         var html = "";
         for (var i=0; i<llen; i++) {
             var ltr = g_letters[i][0];
-            if (ltr != "*") {
+            if (ltr !== "*") {
                 if (html !== "" && i%rlen===0)
                     html += "</tr><tr>";
-                html += "<td><span class='obutton' style='width:14; padding:13px;'";
+                html += "<td><span class='obutton' style='width:14px; padding:13px;'";
                 html += " href='#' onClick='g_bui.onSelLetter(\"" + ltr + "\")'>";
                 html += ltr.toUpperCase()+"</span></td>";
             }
         }
         for (i=llen; (i-1)%rlen!==0; i++)
             html += "<td></td>";
-        html = "<center><table><tr>" + html + "</tr></table><center>";
+        html = "<div class='center'><table><tr>" + html + "</tr></table></div>";
         showPopWin(html, 300, 200 );
     };
 
@@ -434,16 +426,15 @@ function RedipsUI() {
         self.rd.animation.pause = 80;           // set animation loop pause
 
         self.rd.event.dropped = function () {
-            //logit(self.rd.obj.holds);
+            // logit(self.rd.obj.holds);
             var holds = self.hcopy( self.rd.obj.holds );
             self.rd.td.target.holds = holds;
             var id = self.rd.td.target.id;
             var sc = self.rd.td.source.id.charAt(0);
             if (id.charAt(0) === self.boardId) {
-                // tile dropped on playing board
-                if ( holds !== "" && // should never happen
-                     holds.points === 0 && // joker
-                     sc !== self.boardId ) { // taken from rack to board
+
+                // 从待选池拿了 letter
+                if ( holds !== "" && holds.points === 0 && sc !== self.boardId ) {
                     self.showLettersModal( id );
                     return;
                 }
@@ -484,7 +475,7 @@ function RedipsUI() {
         if (lts === 0)
             lts = "&nbsp;";
 
-        html += "<sup><font size='-3'>" + lts + "</font></sup>";
+        html += "<sup class='rusize'>" + lts + "</sup>";
 
         html += "</div>";
         cell.innerHTML = html;
@@ -535,7 +526,7 @@ function RedipsUI() {
                 var orcellid = self.oppRackId + jpos;
                 var rcell = document.getElementById(orcellid);
                 var html = "<div class='drag t2'>" + l.toUpperCase();
-                html += "<sup><font size='-3'>&nbsp;</font></sup>";
+                html += "<sup class='rusize'>&nbsp;</sup>";
                 html += "</div>";
                 rcell.innerHTML = html;
             }
@@ -756,6 +747,7 @@ function RedipsUI() {
             var pl = placement[i];
             id = self.boardId + pl.x + "_" + pl.y;
             var cell = document.getElementById(id);
+
             // if (cell.firstChild==null || typeof(cell.firstChild)=="undefined")
             //     alert("baaaaa");
 
@@ -847,8 +839,8 @@ function RedipsUI() {
 
 
                 if (ltr !== "*") {
-                    html += upper.charAt(i) + "<sup><font size='-3'>"
-                            + self.scores[ltr] + "</font></sup>";
+                    html += upper.charAt(i) + "<sup class='rusize'>"
+                            + self.scores[ltr] + "</sup>";
                 }
 
                 html += "</div>";

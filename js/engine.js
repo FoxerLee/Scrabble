@@ -433,31 +433,40 @@ function find_first_move( opponent_rack, fx, fy ) {
 function find_best_move( opponent_rack ) {
     var num = opponent_rack.length;
     letters = [];
-    for (var i=0; i<num; i++)
+    for (var i = 0; i < num; i++) {
         letters[i] = opponent_rack.charAt(i);
+    }
+
 
     var board_best_score = -1;
     var board_best_word = null;
 
     for ( var ax = 0; ax < g_board.length; ax++) {
         for ( var ay = 0; ay < g_board[ax].length; ay++) {
-            if (g_board[ax][ay] !== "")
-                continue;
+            // 确保填充的是在原始 letter 的周围
+            if (g_board[ax][ay] !== "") {
+                dx = [-1, 1, 0, 0];
+                dy = [0, 0, 1, -1];
+                for (var tmp = 0; tmp < 4; tmp++) {
+                    // 进行遍历操作，获取最好的放置位置
+                    if (g_board[ax+dx[tmp]][ay+dy[tmp]] === "") {
+                        var word = findBestWord( opponent_rack, letters, ax+dx[tmp], ay+dy[tmp] );
+                        if (word.score > -1)
 
-            //logit( "scanning:"+ax+","+ay );
-            // find the best possible word for board
-            // placement at coordinates ax,ay given
-            // the current set of letters
-            var word = findBestWord( opponent_rack, letters, ax, ay );
-            if (word.score > -1)
-                // logit( "found word:"+word.word+" ("+letters+")" );
 
-            if (board_best_score < word.score) {
-                // If this is better than all the board placements
-                // so far, update the best word information
-                board_best_score = word.score;
-                board_best_word = word;
+                            if (board_best_score < word.score) {
+
+                                board_best_score = word.score;
+                                board_best_word = word;
+                            }
+                    }
+
+                }
+
             }
+
+
+
         }
     }
 
@@ -574,7 +583,7 @@ function onPlayerMove() {
 
     var ostr = g_bui.getOpponentRack();
 
-    g_opponent_has_joker = ostr.search("\\*") !== -1
+    g_opponent_has_joker = ostr.search("\\*") !== -1;
     // 限制 computer 的分数
     g_playlevel = g_bui.getPlayLevel();
 
@@ -597,18 +606,20 @@ function onPlayerMove() {
     var animCallback = function() {
         g_bui.makeTilesFixed();
         //g_bui.hideBusy();
-        // create the array of word and created orthogonal
-        // words created by opponent move.
+
         var words = play_word.owords;
         words.push( play_word.word );
 
-        // and send it to the played history window
+        // 添加到 history 界面
         g_bui.addToHistory(words, 2);
 
         var score = play_word.score;
+
         g_oscore += score;
-        if (play_word.seq.length === g_racksize)
-                g_oscore += g_allLettersBonus;
+        if (play_word.seq.length === g_racksize) {
+            g_oscore += g_allLettersBonus;
+        }
+
         g_bui.setOpponentScore( score, g_oscore );
 
         var played = play_word.seq;
@@ -623,35 +634,41 @@ function onPlayerMove() {
         }
         g_bui.removeFromRack( 2, letters_used );
 
-        // get letters from pool as number of missing letters
+
         var letters_left = g_bui.getOpponentRack();
-        // logit( "opponent rack left with:" + letters_left);
+
         var newLetters = takeLetters(letters_left);
+
         if (newLetters === "") {
-            // All tiles taken, nothing left in tile pool
+
             announceWinner();
             return;
         }
-        // logit( "after taking letters, opponent rack is:" + newLetters);
+
         g_bui.setOpponentRack( newLetters );
         g_bui.setTilesLeft( g_letpool.length );
     };
 
 
     if (play_word !== null) {
+
         placeOnBoard( play_word, animCallback );
-        g_passes = 0; // reset consecutive opponeny passes
+        g_passes = 0;
     }
     else {
         g_bui.hideBusy();
-        g_passes++; // increase consecutive opponent passes
-        if (g_passes >= g_maxpasses)
+
+        g_passes++;
+
+        if (g_passes >= g_maxpasses) {
             announceWinner();
+        }
+
         else {
             g_bui.prompt( t("I pass, your turn.") );
             g_bui.makeTilesFixed();
         }
-        //return;
+        // return;
     }
 
 }
@@ -671,12 +688,11 @@ function findBestWord( rack, letters, ax, ay ) {
             var xy = dirs[dir];
         }
 
-        //logit( "direction:" + xy );
-
+        // logit( "direction:" + xy );
+        // 获取正则表达式
         var regex = getRegex( xy, ax, ay, rack );
 
-        // logit( regex );
-        // logit( xy );
+
         if (regex !== null) {
 
             var word = getBestScore( regex, letters, ax, ay );

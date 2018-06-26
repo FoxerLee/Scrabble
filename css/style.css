@@ -217,3 +217,12 @@ td.swapit {
 	/*background-image: url(../pics/dn.png);*/
 	/*background-repeat:no-repeat;*/
 /*}*/
+
+.center {
+    display: block;
+    text-align: -webkit-center;
+}
+
+.rusize {
+    font-size: x-small;
+}
