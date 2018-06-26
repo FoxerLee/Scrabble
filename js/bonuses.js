@@ -11,24 +11,24 @@ function BonusesLayout()
         self.by = by;
 
         var i,j;
-        for (i=0; i<bx; i++) {
+        for (i = 0; i < bx; i++) {
             self.boardm[i] = [];
-            for (j=0; j<by; j++)
+            for (j = 0; j < by; j++)
                 self.boardm[i][j] = 0;
         }
 
         var midx = Math.floor(bx/2);
         var midy = Math.floor(by/2);
-        for (i=0; i<midx; i++)
-            for (j=0; j<midy; j++) {
+        for (i = 0; i < midx; i++)
+            for (j = 0; j < midy; j++) {
                 var dist = bx*by-i-j;
-                if (dist%8===0)
+                if (dist%8 === 0)
                     self.setquad(i, j, 1); // DL
-                else
-                if (dist%11===0)
+
+                else if (dist%11 === 0)
                     self.setquad(i, j, 2); // TL
-                else
-                if (dist%7===0)
+
+                else if (dist%7 === 0)
                     self.setquad(i, j, 3); // DW
             }
 
@@ -55,7 +55,7 @@ function BonusesLayout()
         var y1 = y;
         var x2 = self.bx - x - 1;
         var y2 = self.by - y - 1;
-        //logit([x1,y1,x2,y2]);
+
         self.boardm[x1][y1] = s;
         self.boardm[x1][y2] = s;
         self.boardm[x2][y1] = s;

@@ -3,10 +3,6 @@
 // 2. g_boardm exists and it's init method returns the bonus layout
 //    (defined in bonuses.js)
 
-function dget( id ) {
-    return document.getElementById( id );
-}
-
 function RedipsUI() {
     var self = this;
 
@@ -167,7 +163,7 @@ function RedipsUI() {
         self.by = by;
 
         html = "<div id='drag'>"
-
+                +  "<div class='center'>"
                 +  "<table><tr><td bgcolor='"+self.rackbg+"'>"
                 +  "<span id='togglebtn' class='obutton' "
                 +  "onClick='g_bui.toggleORV()'></span></td>";
@@ -176,7 +172,7 @@ function RedipsUI() {
             html += "<td id='" + self.oppRackId + i
                     +  "' bgcolor='" + self.rackbg + "' holds=''></td>";
         }
-        html += "</tr></table>";
+        html += "</tr></table></div>";
         //html += "<br>";
 
 
@@ -376,9 +372,9 @@ function RedipsUI() {
 
         var rackplen = self.getPlayerRack().length;
         var maxswap = rackplen < tilesLeft ? rackplen : tilesLeft;
-        // alert( rackplen +" "+ tilesLeft + " " + maxswap)
+
         html += "<table><tr bgcolor='#ffbebe'>";
-        for (i=0; i<maxswap; i++) {
+        for (i = 0; i < maxswap; i++) {
             html += "<td class='swapit' id='swap" + i + "'></td>";
         }
         html += "</tr></table>";
