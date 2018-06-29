@@ -91,9 +91,7 @@ table.board {
 	table-layout:fixed;
 }
 
-td {
-    background-color: #e3e362;
-}
+
 
 td.DL {
 	background-image:url(../pics/QQ.png);
@@ -225,4 +223,9 @@ td.swapit {
 
 .rusize {
     font-size: x-small;
+}
+
+.rule {
+	width: 600px;
+	text-align: -webkit-left;
 }

@@ -115,204 +115,7 @@ function takeLetters( existing ) {
     return letters + existing;
 }
 
-// 检查 player 放的 letter 的有效位置
-// 一个 letter 的例子 {x, y, ltr（字母）, lscr / lsc（分数）} （妈蛋，写太多了会忘）
-function checkValidPlacement( placement ) {
-    if (placement.length === 0)
-        return { played:"", msg:t("no letters were placed.") };
-    // logit(placement);
-    var isplacement = {};
-    var worderrs = "";
 
-    var lplayed = "";
-    var minx = placement[0].x;
-    var miny = placement[0].y;
-    var maxx = minx;
-    var maxy = miny;
-    var dx = 0; // 方向定义，1 代表横向衍生
-    var dy = 0; // 同上，1 代表竖向衍生
-
-    // 起始位置
-    var sp = g_bui.getStartXY();
-    var onStar = false;
-
-    var x,y,xy;
-
-    for (var i = 0; i < placement.length; i++) {
-        var pl = placement[i];
-        if (pl.lsc === 0)
-            lplayed += "*";
-        else
-            lplayed += pl.ltr;
-        x = pl.x;
-        y = pl.y;
-
-        if (x === sp.x && y === sp.y)
-            onStar = true;
-
-        xy = x + "_" + y;
-        isplacement[xy] = pl;
-
-        // 这里是为了调整这一串字母的最大、最小位置
-        if (minx > x)
-            minx = x;
-        if (maxx < x)
-            maxx = x;
-
-        if (miny > y)
-            miny = y;
-        if (maxy < y)
-            maxy = y;
-    }
-
-
-    if (miny < maxy)
-        dy = 1;
-
-    if (minx < maxx)
-        dx = 1;
-
-    // 横向、又纵向衍生，那肯定就是斜着放了
-    if (dx === 1 && dy === 1)
-        return {played:"", msg:t("word must be horizontal or vertical.") };
-
-    // 起始必须放中间
-    if (g_board_empty && !onStar)
-        return {played:"", msg:t("first word must be on the star.") };
-
-    var mbx = g_board.length;
-    var mby = mbx;
-    // 只有一个 letter 放入了
-    if (dx === 0 && dy === 0) {
-
-        if (minx > 0 && g_board[minx-1][miny] !== "" || minx < mbx-1 && g_board[minx+1][miny] !== "") {
-            dx = 1;
-        }
-
-        else if (miny > 0 && g_board[minx][miny-1] !== "" || miny < mby - 1 && g_board[minx][miny+1] !== "") {
-            dy = 1;
-        }
-
-        else {
-            lplayed = lplayed.toUpperCase();
-            var msg = lplayed + t(" is not connected to a word.");
-            return {played:"", msg:msg };
-        }
-    }
-
-    var numl = (dx === 1) ? maxx-minx+1 : maxy-miny+1;
-    // 起始位置
-    var px = minx - dx;
-    var py = miny - dy;
-
-    var word = "";
-
-    var wordmult = 1;
-    var wscore = 0; // 新的 word 的 score
-    var oscore = 0; // 与已经放了的 letter 的 score
-    var ltr;
-    var words = []; // 新 word + 拼的 word
-
-    // 这里算正交的
-    for (i = 0; i < numl; i++) {
-        x = px + dx;
-        y = py + dy;
-
-        ltr = g_board[x][y];
-
-        if (ltr === "") {
-            return { played:"", msg:t("spaces in word.") };
-        }
-
-        xy = x + "_" + y;
-
-        if (xy in isplacement) {
-            // 检查拼的 word
-            // 该字母的情况、bonus、分数
-            var pinfo = isplacement[xy];
-
-            var bonus = g_boardmults[x][y];
-            var lscr  = pinfo.lsc;
-
-            var orthinfo = getOrthWordScore( ltr, lscr, x, y, dx, dy );
-
-            // 把 bonus 乘上（letter）
-            lscr *= g_lmults[bonus];
-            wscore += lscr;
-            // word bonus
-            wordmult *= g_wmults[bonus];
-
-            // 拼不出来的 letter
-            if ( orthinfo.score === -1 ) {
-                if (worderrs !== "")
-                    worderrs += ", ";
-                worderrs += orthinfo.word.toUpperCase();
-            }
-
-            if (orthinfo.score > 0) {
-                oscore += orthinfo.score;
-                words.push(orthinfo.word);
-            }
-            // logit( "orthword:"+orthinfo.word+", score:"+orthinfo.score );
-
-        }
-        else
-            // 最后算之前存在的 letter 的 score
-            wscore += g_boardpoints[x][y];
-
-        word += ltr;
-        px += dx;
-        py += dy;
-    }
-
-    // 接下来是算新加的 letter 的首字母之前的
-    var xpre = minx - dx;
-    var ypre = miny - dy;
-    while (xpre >= 0 && ypre >= 0 && g_board[xpre][ypre] !== "") {
-        ltr = g_board[xpre][ypre];
-        wscore += g_boardpoints[xpre][ypre];
-        word = ltr + word;
-        xpre -= dx;
-        ypre -= dy;
-    }
-
-    // 算新加的 letter 的尾字母之后的
-    var xpst = maxx + dx;
-    var ypst = maxy + dy;
-    while (xpst < mbx && ypst < mby && g_board[xpst][ypst] !== "") {
-        ltr = g_board[xpst][ypst];
-        wscore += g_boardpoints[xpst][ypst];
-        word += ltr;
-        xpst += dx;
-        ypst += dy;
-    }
-
-    if (!(word in g_wordmap)) {
-        if (worderrs !== "")
-            worderrs += ", ";
-        worderrs += word.toUpperCase();
-    }
-
-    // 如果有在词典里面找不到的，抛出 error
-    if (worderrs !== "") {
-        worderrs += t(" not found in dictionary.");
-        return { played:"", msg:worderrs };
-    }
-
-    // 限制了在第一次之后，之后的词都必须要在之前的基础上添加，不能随意放
-    // 我加的这个规则真的是巨难哈哈哈哈哈哈
-    if (!g_board_empty && oscore === 0 && word.length === placement.length) {
-
-        return { played:"", msg:t("word not connected.") };
-    }
-
-    //logit( "created word is:"+ word);
-    words.push( word );
-
-    var score = wscore * wordmult + oscore;
-
-    return { played:lplayed, score:score, words:words };
-}
 
 
 function onPlayerClear() {
@@ -443,29 +246,41 @@ function find_best_move( opponent_rack ) {
 
     for ( var ax = 0; ax < g_board.length; ax++) {
         for ( var ay = 0; ay < g_board[ax].length; ay++) {
-            // 确保填充的是在原始 letter 的周围
+            // // 确保填充的是在原始 letter 的周围
+            // if (g_board[ax][ay] !== "") {
+            //     dx = [-3, -2, -1, 1, 2, 3, 0, 0, 0,  0,  0,  0];
+            //     dy = [ 0,  0,  0, 0, 0, 0, 1, 2, 3, -1, -2, -3];
+            //     for (var tmp = 0; tmp < dx.length; tmp++) {
+            //         // 进行遍历操作，获取最好的放置位置
+            //         if (g_board[ax+dx[tmp]][ay+dy[tmp]] === "") {
+            //             var word = findBestWord( opponent_rack, letters, ax+dx[tmp], ay+dy[tmp] );
+            //             if (word.score > -1)
+            //
+            //
+            //                 if (board_best_score < word.score) {
+            //
+            //                     board_best_score = word.score;
+            //                     board_best_word = word;
+            //                 }
+            //         }
+            //
+            //     }
+            //
+            // }
             if (g_board[ax][ay] !== "") {
-                dx = [-1, 1, 0, 0];
-                dy = [0, 0, 1, -1];
-                for (var tmp = 0; tmp < 4; tmp++) {
-                    // 进行遍历操作，获取最好的放置位置
-                    if (g_board[ax+dx[tmp]][ay+dy[tmp]] === "") {
-                        var word = findBestWord( opponent_rack, letters, ax+dx[tmp], ay+dy[tmp] );
-                        if (word.score > -1)
-
-
-                            if (board_best_score < word.score) {
-
-                                board_best_score = word.score;
-                                board_best_word = word;
-                            }
-                    }
-
-                }
-
+                continue;
             }
 
 
+            var word = findBestWord( opponent_rack, letters, ax, ay );
+            // if (word.score > -1)
+
+
+            if (board_best_score < word.score) {
+
+                board_best_score = word.score;
+                board_best_word = word;
+            }
 
         }
     }
@@ -711,6 +526,211 @@ function findBestWord( rack, letters, ax, ay ) {
 
     return bestword;
 }
+
+
+
+// 检查 player 放的 letter 的有效位置
+// 一个 letter 的例子 {x, y, ltr（字母）, lscr / lsc（分数）} （妈蛋，写太多了会忘）
+function checkValidPlacement( placement ) {
+    if (placement.length === 0)
+        return { played:"", msg:t("no letters were placed.") };
+    // logit(placement);
+    var isplacement = {};
+    var worderrs = "";
+
+    var lplayed = "";
+    var minx = placement[0].x;
+    var miny = placement[0].y;
+    var maxx = minx;
+    var maxy = miny;
+    var dx = 0; // 方向定义，1 代表横向衍生
+    var dy = 0; // 同上，1 代表竖向衍生
+
+    // 起始位置
+    var sp = g_bui.getStartXY();
+    var onStar = false;
+
+    var x,y,xy;
+
+    for (var i = 0; i < placement.length; i++) {
+        var pl = placement[i];
+        if (pl.lsc === 0)
+            lplayed += "*";
+        else
+            lplayed += pl.ltr;
+        x = pl.x;
+        y = pl.y;
+
+        if (x === sp.x && y === sp.y)
+            onStar = true;
+
+        xy = x + "_" + y;
+        isplacement[xy] = pl;
+
+        // 这里是为了调整这一串字母的最大、最小位置
+        if (minx > x)
+            minx = x;
+        if (maxx < x)
+            maxx = x;
+
+        if (miny > y)
+            miny = y;
+        if (maxy < y)
+            maxy = y;
+    }
+
+
+    if (miny < maxy)
+        dy = 1;
+
+    if (minx < maxx)
+        dx = 1;
+
+    // 横向、又纵向衍生，那肯定就是斜着放了
+    if (dx === 1 && dy === 1)
+        return {played:"", msg:t("word must be horizontal or vertical.") };
+
+    // 起始必须放中间
+    if (g_board_empty && !onStar)
+        return {played:"", msg:t("first word must be on the star.") };
+
+    var mbx = g_board.length;
+    var mby = mbx;
+    // 只有一个 letter 放入了
+    if (dx === 0 && dy === 0) {
+
+        if (minx > 0 && g_board[minx-1][miny] !== "" || minx < mbx-1 && g_board[minx+1][miny] !== "") {
+            dx = 1;
+        }
+
+        else if (miny > 0 && g_board[minx][miny-1] !== "" || miny < mby - 1 && g_board[minx][miny+1] !== "") {
+            dy = 1;
+        }
+
+        else {
+            lplayed = lplayed.toUpperCase();
+            var msg = lplayed + t(" is not connected to a word.");
+            return {played:"", msg:msg };
+        }
+    }
+
+    var numl = (dx === 1) ? maxx-minx+1 : maxy-miny+1;
+    // 起始位置
+    var px = minx - dx;
+    var py = miny - dy;
+
+    var word = "";
+
+    var wordmult = 1;
+    var wscore = 0; // 新的 word 的 score
+    var oscore = 0; // 与已经放了的 letter 的 score
+    var ltr;
+    var words = []; // 新 word + 拼的 word
+
+    // 这里算正交的
+    for (i = 0; i < numl; i++) {
+        x = px + dx;
+        y = py + dy;
+
+        ltr = g_board[x][y];
+
+        if (ltr === "") {
+            return { played:"", msg:t("spaces in word.") };
+        }
+
+        xy = x + "_" + y;
+
+        if (xy in isplacement) {
+            // 检查拼的 word
+            // 该字母的情况、bonus、分数
+            var pinfo = isplacement[xy];
+
+            var bonus = g_boardmults[x][y];
+            var lscr  = pinfo.lsc;
+
+            var orthinfo = getOrthWordScore( ltr, lscr, x, y, dx, dy );
+
+            // 把 bonus 乘上（letter）
+            lscr *= g_lmults[bonus];
+            wscore += lscr;
+            // word bonus
+            wordmult *= g_wmults[bonus];
+
+            // 拼不出来的 letter
+            if ( orthinfo.score === -1 ) {
+                if (worderrs !== "")
+                    worderrs += ", ";
+                worderrs += orthinfo.word.toUpperCase();
+            }
+
+            if (orthinfo.score > 0) {
+                oscore += orthinfo.score;
+                words.push(orthinfo.word);
+            }
+            // logit( "orthword:"+orthinfo.word+", score:"+orthinfo.score );
+
+        }
+        else
+        // 最后算之前存在的 letter 的 score
+            wscore += g_boardpoints[x][y];
+
+        word += ltr;
+        px += dx;
+        py += dy;
+    }
+
+    // 接下来是算新加的 letter 的首字母之前的
+    var xpre = minx - dx;
+    var ypre = miny - dy;
+    while (xpre >= 0 && ypre >= 0 && g_board[xpre][ypre] !== "") {
+        ltr = g_board[xpre][ypre];
+        wscore += g_boardpoints[xpre][ypre];
+        word = ltr + word;
+        xpre -= dx;
+        ypre -= dy;
+    }
+
+    // 算新加的 letter 的尾字母之后的
+    var xpst = maxx + dx;
+    var ypst = maxy + dy;
+    while (xpst < mbx && ypst < mby && g_board[xpst][ypst] !== "") {
+        ltr = g_board[xpst][ypst];
+        wscore += g_boardpoints[xpst][ypst];
+        word += ltr;
+        xpst += dx;
+        ypst += dy;
+    }
+
+    if (!(word in g_wordmap)) {
+        if (worderrs !== "")
+            worderrs += ", ";
+        worderrs += word.toUpperCase();
+    }
+
+    // 如果有在词典里面找不到的，抛出 error
+    if (worderrs !== "") {
+        worderrs += t(" not found in dictionary.");
+        return { played:"", msg:worderrs };
+    }
+
+    // 限制了在第一次之后，之后的词都必须要在之前的基础上添加，不能随意放
+    // 我加的这个规则真的是巨难哈哈哈哈哈哈
+    if (!g_board_empty && oscore === 0 && word.length === placement.length) {
+
+        return { played:"", msg:t("word not connected.") };
+    }
+
+    //logit( "created word is:"+ word);
+    words.push( word );
+
+    var score = wscore * wordmult + oscore;
+
+    return { played:lplayed, score:score, words:words };
+}
+
+
+
+
 
 function getBestScore( regex, letters, ax, ay ) {
     var rletmap = {}; // 剩余 letter 的种类和个数

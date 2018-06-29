@@ -2,45 +2,64 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title></title>
-<script type="text/javascript">
-var t1 = +new Date();
-function logit( str )
-{
-    window.console && console.log( str );
-}
-</script>
-<link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
-<link rel="stylesheet" type="text/css" href="css/submodal.css" />
-<script type="text/javascript" src="js/lib/submodal.js"></script>
+<title>Scrabble</title>
+    <script type="text/javascript">
+
+        var t1 = +new Date();
+
+        function logit( str ) {
+            window.console && console.log( str );
+        }
+    </script>
+
+    <script type="text/javascript">
+
+        function _init() {
+            if ( ! document.querySelectorAll ) document.querySelectorAll = Sizzle;
+            init( "idBoard" );
+        }
+    </script>
+    <!--lib 导入-->
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/submodal.css" />
+    <script type="text/javascript" src="js/lib/submodal.js"></script>
+
+    <!--word 库-->
+    <script type="text/javascript" src="js/lang/en_wordlist.js"></script>
+    <script type="text/javascript" src="js/lang/en_defs.js"></script>
+    <script type="text/javascript" src="js/lang/en_letters.js"></script>
+    <script type="text/javascript" src="js/lang/en_translate.js"></script>
 
 
-<script type="text/javascript" src="js/lang/en_wordlist.js"></script>
-<script type="text/javascript" src="js/lang/en_defs.js"></script>
-<script type="text/javascript" src="js/lang/en_letters.js"></script>
-<script type="text/javascript" src="js/lang/en_translate.js"></script>
+    <!--原生 js 实现-->
+    <script type="text/javascript" src="js/lib/sizzle.js"></script>
+    <script type="text/javascript" src="js/lib/redipsdrag.js"></script>
+    <script type="text/javascript" src="js/bonuses.js"></script>
+    <script type="text/javascript" src="js/ui.js"></script>
+    <script type="text/javascript" src="js/engine.js"></script>
 
 
 
-<script type="text/javascript" src="js/lib/sizzle.js"></script>
-<script type="text/javascript" src="js/lib/redipsdrag.js"></script>
-<script type="text/javascript" src="js/bonuses.js"></script>
-<script type="text/javascript" src="js/ui.js"></script>
-<script type="text/javascript" src="js/engine.js"></script>
 
-<script type="text/javascript">
-function _init()
-{
-    if ( ! document.querySelectorAll ) document.querySelectorAll = Sizzle;
-    init( "idBoard" );
-}
-</script>
-
-<title>JScrab</title>
 </head>
 <body style='-moz-user-select:none; -webkit-user-select:none;' onLoad="_init()">
 <div id="uidiv" class="center">
 
+</div>
+
+<div class="center">
+    Rule
+    <div class="rule">
+
+    1. Starting Point: The first word must include the starting point of the center
+    <br>
+    2. Bonuses: Tencent(Red) -- score * 2, Apple(Blue) -- score * 3, Microsoft(Gray) -- score * 4, Google(Green) -- score * 5
+    <br>
+    3. Connection: Each time the new letters must be stitched together with at least one original letter
+    </div>
+    <br>
+
+    Beat the evil computer! Have fun!
 </div>
 
 </body>

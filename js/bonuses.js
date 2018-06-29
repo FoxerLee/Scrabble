@@ -5,8 +5,7 @@ function BonusesLayout()
 {
     var self = this;
     self.boardm = [];
-    self.init = function(bx, by)
-    {
+    self.init = function(bx, by) {
         self.bx = bx;
         self.by = by;
 
@@ -22,29 +21,36 @@ function BonusesLayout()
         for (i = 0; i < midx; i++)
             for (j = 0; j < midy; j++) {
                 var dist = bx*by-i-j;
-                if (dist%8 === 0)
-                    self.setquad(i, j, 1); // DL
-
-                else if (dist%11 === 0)
-                    self.setquad(i, j, 2); // TL
+                if (dist%6 === 0)
+                    self.setquad(i, j, 1); // 红 Tencent
 
                 else if (dist%7 === 0)
-                    self.setquad(i, j, 3); // DW
+                    self.setquad(i, j, 2); // 蓝 Apple
+
+                else if (dist%13 === 0)
+                    self.setquad(i, j, 3); // 灰 Microsoft
             }
 
-        self.setquad( midx, 0, 3 );
-        self.setquad( 0, midy, 3 );
-        self.setquad( 4, 0, 4 );
-        self.setquad( 0, 1, 4 );
-        self.setquad( 4, 4, 0 );
+        // 优化
+        self.setquad( midx, 0, 2 );
+        self.setquad( 0, midy, 2 );
+        self.setquad( 4, 4, 3 );
+
+        self.setquad( 0, 3, 0 );
+        self.setquad( 3, 0, 0 );
         self.setquad( 1, 2, 0 );
         self.setquad( 2, 1, 0 );
-        self.setquad( 1, 1, 3 );
-        self.setquad( 4, 1, 0 );
-        self.setquad( 6, 5, 2 );
-        self.setquad( 8, 2, 0 );
+
+        self.setquad( 0, 1, 4 );
+        self.setquad( 1, 0, 4 );
+
         self.setquad( 2, 6, 0 );
-        self.setquad( 4, 7, 3 );
+        self.setquad( 6, 2, 0 );
+        self.setquad( 3, 6, 0 );
+        self.setquad( 6, 3, 0 );
+
+        self.setquad( 3, 7, 1 );
+        self.setquad( 7, 3, 1 );
 
         return self.boardm;
     };

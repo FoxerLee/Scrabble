@@ -104,16 +104,16 @@ function RedipsUI() {
         return self.level-1;
     };
 
-    self.playSound = function(soundfile) {
-
-    };
+    // self.playSound = function(soundfile) {
+    //
+    // };
 
     self.create = function( iddiv, bx, by, scores, racksize ) {
         if (self.created)
             return;
 
         self.boardm = g_boardm.init(bx, by);
-        var hr   = '<tr bgcolor="#adadad"><td colspan="2"></td></tr>';
+        var hr   = '<tr bgcolor="#adadad"><td colspan="10"></td></tr>';
         var html = '';
         html += '<table><tr><td><div id="idBoard"></div>'
 
@@ -138,12 +138,13 @@ function RedipsUI() {
                 +  hr
 
                 +  '<tr><td>' + t('Computer last score:') + '</td><td id="loscore">0</td></tr>'
-                +  '<tr bgcolor="#fefeba"><td>' + t('Computer total score:') + '</td>'
-                +  '<td id="oscore"><b>0</b></td></tr>'
+                +  '<tr><td>' + t('Your last score:') + '</td><td id="lpscore">0</td></tr>'
                 +  hr
 
-                +  '<tr><td>' + t('Your last score:') + '</td><td id="lpscore">0</td></tr>'
-                +  '<tr bgcolor="#fefeba"><td>' + t('Your total score:') + '</td>'
+
+                +  '<tr><td>' + t('Computer total score:') + '</td>'
+                +  '<td id="oscore"><b>0</b></td></tr>'
+                +  '<tr><td>' + t('Your total score:') + '</td>'
                 +  '<td id="pscore"><b>0</b></td></tr>'
                 +  hr
 
@@ -152,6 +153,7 @@ function RedipsUI() {
 
                 +  '</table>'
                 +  '</td></tr></table>';
+
         document.getElementById("uidiv").innerHTML = html;
 
         self.scores = scores;
@@ -262,8 +264,8 @@ function RedipsUI() {
         self.showOpRack = 1-self.showOpRack;
         var buttontxt = [];
 
-        buttontxt[0] = t("Show computer's rack");
-        buttontxt[1] = t("Hide computer's rack");
+        buttontxt[0] = t("Show computer's letters");
+        buttontxt[1] = t("Hide computer's letters");
 
         var tbtn = document.getElementById("togglebtn");
         tbtn.innerHTML = buttontxt[self.showOpRack];
@@ -283,46 +285,71 @@ function RedipsUI() {
         var fx = Math.round(self.bx/2) - 1;
         var fy = Math.round(self.by/2) - 1;
         return { x:fx, y:fy };
+
     };
 
     self.hcopy = function( pholds ) {
-        if (typeof(pholds) === "undefined" || pholds === "" || pholds === null)
+
+
+        if (typeof(pholds) === "undefined" || pholds === "" || pholds === null) {
             return "";
+        }
+
 
         return {letter:pholds.letter, points:pholds.points};
+
     };
 
     self.showBusy = function() {
-        html = "<div class='center'>"+t("Computer thinking, please wait...");
-        html += "</div>";
+
+        html = "<div class='center'>"+t("Computer thinking, please wait...")+"</div>";
+
         showPopWin( html, 250, 100 );
     };
 
     self.hideBusy = function() {
+
         hidePopWin(false);
+
     };
 
 
     self.onSwap = function() {
         var id;
         var keep = "";
+
+
         for (var i = 0; ; i++) {
-            id = "swap_candidate"+i;
+
+            id = "swap_candidate" + i;
             var swapc = document.getElementById(id);
-            if (swapc === null)
+
+            if (swapc === null) {
                 break;
-            if (swapc.firstChild)
+            }
+
+
+            if (swapc.firstChild) {
                 keep += swapc.firstChild.holds.letter;
+            }
+
         }
 
         var swap = "";
         for (i = 0; ; i++) {
-            id = "swap"+i;
+
+            id = "swap" + i;
             var swp = document.getElementById(id);
-            if (swp === null)
+
+            if (swp === null) {
                 break;
-            if (swp.firstChild)
+            }
+
+
+            if (swp.firstChild) {
                 swap += swp.firstChild.holds.letter;
+            }
+
         }
 
         // alert( "keep:"+keep+" swap:"+swap );
@@ -335,6 +362,8 @@ function RedipsUI() {
     };
 
     self.onSelLetter = function( ltr ) {
+
+
         var holds = { letter:ltr, points:0 };
         self.newplays[self.bdropCellId] = holds;
 
@@ -414,12 +443,11 @@ function RedipsUI() {
         showPopWin(html, 300, 200 );
     };
 
-    self.initRedips = function()
-    {
+    self.initRedips = function() {
         self.rd.init();
         self.rd.dropMode = 'single';
-        // self.rd.style.borderDisabled = 'solid';  // border style for disabled element unchanged
-        self.rd.animation.pause = 80;           // set animation loop pause
+
+        self.rd.animation.pause = 80;
 
         self.rd.event.dropped = function () {
             // logit(self.rd.obj.holds);
@@ -435,33 +463,40 @@ function RedipsUI() {
                     return;
                 }
                 self.newplays[id] = self.hcopy( holds );
-                self.playSound("sounds/tileonboard.mp3");
+                // self.playSound("../music/play.mp3");
             }
-            else
-            if (id.charAt(0) === "p") {
-                // tile dropped on player rack
-                if ( holds !== "" && // should never happen
-                     holds.points === 0 && // joker
-                     sc === self.boardId ) { // taken board to rack
-                    // remove selected letter from joker tile
+
+
+
+            else if (id.charAt(0) === "p") {
+
+                if ( holds !== "" && holds.points === 0 && // joker
+                     sc === self.boardId ) {
+
                     self.rd.obj.innerHTML = "";
                     self.rd.obj.holds = {letter:"", points:0};
                 }
             }
         };
+
+
         self.rd.event.moved = function () {
+
             self.rd.td.source.holds = "";
             var id = self.rd.td.source.id;
+
+
             if (id.charAt(0) === self.boardId) {
-                // tile lifted from playing board
+
                 delete self.newplays[id];
             }
         };
     };
 
-    self.opponentPlay = function( x, y, lt, lts )
-    {
-        // TODO: add animation etc.
+
+
+    self.opponentPlay = function( x, y, lt, lts ) {
+
         var cell = document.getElementById(self.boardId + x + "_" + y);
         cell.holds = { letter:lt, points:lts };
 
@@ -476,51 +511,53 @@ function RedipsUI() {
         html += "</div>";
         cell.innerHTML = html;
         cell.style.backgroundColor="yellow";
+
+
+
     };
 
-    self.playOpponentMove = function( placements, callback )
-    {
-        // placements is an array of letter placement information
-        // for the opponent move. It consists of:
-        // ltr: the letter to place
-        // lscr: the letter's score
-        // x: the x board position to place the letter
-        // y: the y board position to place the letter
 
-        // dlet is a dictionary of arrays, where each
-        // letter played maps to a different array. The
-        // size of the array is the number of times the same
-        // letter was played in a move.
+
+    self.playOpponentMove = function( placements, callback ) {
+
+
+
 
         var orack = self.racks[2];
-        // newrack will be oponent's rack after the value
-        // of the joker tiles has been determined.
+
+
         var newrack = orack;
         var dlet = {};
         // logit( "placements:" );
         // logit( placements );
-        for (var i=0; i<placements.length; i++) {
+        for (var i = 0; i < placements.length; i++) {
+
             var placement = placements[i];
             var l = placement.ltr;
-            if (l in dlet)
+
+
+            if (l in dlet) {
                 dlet[ l ].push( placement );
+            }
+
             else
                 dlet[ l ] = [ placement ];
 
-            // If letter is not on rack then a joker is used
-            // Put a letter in the blank tile before it is
-            // animating to the board
-            // After the process below, orack will be a string
-            // of the original opponent rack with all the letters
-            // used in the opponent word converted to _
+
             if (orack.search(l) === -1) {
+
+
                 var jpos = orack.search("\\*");
-                // replace joker symbol with a different symbol
+
                 orack = orack.replace("*", "_");
-                // expose joker letter value in new rack
+
                 newrack = newrack.replace("*", l);
+
                 var orcellid = self.oppRackId + jpos;
+
                 var rcell = document.getElementById(orcellid);
+
+
                 var html = "<div class='drag t2'>" + l.toUpperCase();
                 html += "<sup class='rusize'>&nbsp;</sup>";
                 html += "</div>";
@@ -534,58 +571,57 @@ function RedipsUI() {
         // logit( "dlet:");
         // logit( dlet );
 
-        // Go over each letter in the current opponent rack
-        // each time a letter exists in the move dictionary
-        // (dlet) animate it to its position on the board
-        // and then decrement its count in the dictionary
+
         self.displayedcells = [];
         var rack = newrack.split("");
 
         function moveletter(info, wait) {
-            setTimeout( function() { self.rd.moveObject( info ); }, wait );
+            setTimeout( function() {
+                self.rd.moveObject( info );
+
+                }, wait);
         }
 
         self.fixPlayerTiles();
         var lettermoves = [];
-        for (i=0; i<rack.length; i++) {
+        for (i = 0; i < rack.length; i++) {
             var rlet = rack[i];
-            if (rlet in dlet && dlet[rlet].length>0) {
-                // get the placement info for this letter
+            if (rlet in dlet && dlet[rlet].length > 0) {
+
                 var move = dlet[rlet][0];
-                // and the position of the corresponding letter on
-                // the opponents rack
+
                 var opid = self.oppRackId + i;
-                // and the target cell information
+
                 var cellId = self.boardId + move.x + "_" + move.y;
                 var orcell = document.getElementById( opid );
+
                 orcell.style.display = "";
                 self.displayedcells.push( orcell );
                 var div = orcell.firstChild;
                 var cell = document.getElementById( cellId );
                 div.holds = { letter:move.ltr, points:move.ltscr };
-                //cell.innerHTML = "<div class='drag'></div>";
-                // update what the target cell will contain
+
+
                 self.animTiles = placements.length;
                 self.animCallback = callback;
+
                 var moveinfo = {obj:div, target:cell, callback:self.animDone};
+
                 lettermoves.push( {info:moveinfo, x:move.x, y:move.y} );
                 cell.holds = { letter:move.ltr, points:move.lscr };
-                // remove the placement element for this letter
+
                 dlet[rlet].splice(0, 1);
             }
         }
 
-        // Now animate the letters to their correct position in the board
-        // by the order in which thet appear in the word. For this we need
-        // to sort the letters to animate according to their position in
-        // the word.
-        function compareByX(a, b)
-        {
+
+        function compareByX(a, b) {
+
             return a.x - b.x;
         }
 
-        function compareByY(a, b)
-        {
+        function compareByY(a, b) {
+
             return a.y - b.y;
         }
 
@@ -596,37 +632,35 @@ function RedipsUI() {
             else
                 lettermoves.sort(compareByY);
         }
-        for (i=0; i<totalanims; i++) {
-            // Set the the time to wait before animating this letter
-            // to its position on the board
+        for (i = 0; i < totalanims; i++) {
+
             var wait = 10 + 1000 * i;
-            // create a separate instance of the letter info local to the function
-            // and set the timer to move the letter by activating this function
+
             moveletter( lettermoves[i].info, wait );
         }
     };
 
 
-    self.animDone = function()
-    {
+    self.animDone = function() {
+
         self.animTiles--;
-        self.playSound("sounds/tileonboard.mp3");
+        // self.playSound("sounds/tileonboard.mp3");
         // logit( "animations left:"+self.animTiles);
         if (self.animTiles === 0) {
-            // last opponent tile animated to its position
-            // return original show/hide state of tiles set to
-            // visible before animation.
+
             if (self.showOpRack === 0)
-                for (var i=0; i<self.displayedcells.length; i++)
+                for (var i = 0; i < self.displayedcells.length; i++) {
                     self.displayedcells[i].style.display = "none";
+                }
+
 
             self.animCallback();
         }
     };
 
-    self.fixPlayerTiles = function()
-    {
-        for (var i=0; i<self.racks[1].length; i++) {
+    self.fixPlayerTiles = function() {
+
+        for (var i = 0; i < self.racks[1].length; i++) {
             var idp  = self.plrRackId + i;
             var divp = document.getElementById(idp).firstChild;
             if ( divp )
@@ -656,21 +690,24 @@ function RedipsUI() {
     };
 
     self.removeFromRack = function( pl, letters ) {
-        // Remove letters from player or opponent racks
-        // pl: 1=player, 2=opponent
-        // letters: array of letters to remove
+
 
         var dlet = {};
-        for (var i=0; i<letters.length; i++) {
+        for (var i = 0; i < letters.length; i++) {
             var l = letters.charAt(i);
-            if (l in dlet)
+            if (l in dlet) {
                 dlet[l]++;
-            else
+            }
+
+            else {
                 dlet[l]=1;
+            }
+
         }
 
         var rack = self.racks[pl].split("");
-        for (i=0; i<rack.length; i++) {
+
+        for (i = 0; i < rack.length; i++) {
             var rlet = rack[i];
             if (rlet in dlet && dlet[rlet]>0) {
                 delete rack[i];
@@ -678,8 +715,7 @@ function RedipsUI() {
             }
         }
 
-        // if (pl == 1)
-        //     logit( "removeFromRack leaves " + rack );
+
         self.racks[pl] = rack.join("");
     };
 
@@ -733,6 +769,25 @@ function RedipsUI() {
         return self.racks[2];
     };
 
+    // 获取本次 player 放置 letter 的 信息
+    self.getPlayerPlacement = function() {
+        var placement = [];
+        var played = self.newplays;
+        for (var l in played) {
+
+            var sc = l.substr(1);
+            var co = sc.split("_");
+
+            var x = +co[0];
+            var y = +co[1];
+
+            var ltr = played[l].letter;
+            var scr = played[l].points;
+
+            placement.push( { ltr:ltr, lsc:scr, x:x, y:y } );
+        }
+        return placement;
+    };
 
     self.cancelPlayerPlacement = function() {
         var placement = self.getPlayerPlacement();
@@ -770,25 +825,7 @@ function RedipsUI() {
         self.newplays = [];
     };
 
-    // 获取本次 player 放置 letter 的 信息
-    self.getPlayerPlacement = function() {
-        var placement = [];
-        var played = self.newplays;
-        for (var l in played) {
 
-            var sc = l.substr(1);
-            var co = sc.split("_");
-
-            var x = +co[0];
-            var y = +co[1];
-
-            var ltr = played[l].letter;
-            var scr = played[l].points;
-
-            placement.push( { ltr:ltr, lsc:scr, x:x, y:y } );
-        }
-        return placement;
-    };
 
     self.acceptPlayerPlacement = function() {
         self.newplays = {};
@@ -900,6 +937,4 @@ function RedipsUI() {
 
 var g_bui = new RedipsUI();
 
-// for Closure compiler:
-//-----------------------------
-// evals in strings:
+

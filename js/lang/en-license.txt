@@ -1,0 +1,26 @@
+==================================================================
+
+README: About the English dictionary.
+
+The English dictionary has been elaborated by
+    Juan L. Varona
+    
+
+This dictionary and the collection of words that it contains can be
+distributed, modified or not, with no restriction, provided a
+reference is made to the author and also to this description
+(modified is necessary to point the changes made in the
+dictionary). Also, it may be used in conjunction with any other
+program, commercial or otherwise, with just two conditions:
+    (1) The origin of the dictionary should be recognized in a
+visible place of the program itself or the manual.
+    (2) A certificate should be submitted to the author by ordinary
+mail indicating that this collection of words is being used in
+conjunction with the program.
+
+These conditions have only curricular purposes and of
+acknowledgment to the author's work. They will also allow him to
+find out if it has been useful elsewhere. I have spent quite a lot
+of time in compiling this dictionary and would be pleased to know
+that it has not been a wasted time.
+_________________________________________________________________________
