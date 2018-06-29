@@ -6,7 +6,9 @@
 
 代码由执行游戏逻辑的引擎 engine.js 和实现游戏引擎用户界面的用户界面 ui.js 组成，还包括了一些小的配置 js。目前支持英文 word。
 
-###玩法介绍
+项目开源地址：https://github.com/FoxerLee/Scrabble
+
+### 玩法介绍
 
 **开始游戏**
 
